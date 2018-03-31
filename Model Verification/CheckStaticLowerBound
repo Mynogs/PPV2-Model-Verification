@@ -1,0 +1,70 @@
+-- 19.09.2017 16:03:36 AR V1.0a
+
+generic = {
+  parameter = {
+    bound = 1.0,
+    equal = false
+  },
+
+  init = function(self)
+    block.setInputsPinCount(1)
+    block.setOutputsPinCount(0)
+    block.modifyFlags('SupressStartFunctionCall', true)
+    block.modifyFlags('SupressStopFunctionCall', true)
+  end,
+
+  open = function(self)
+    gui.add('Info', 'Info', 'Check static lower bound', 'Check that signal is greater than (or optionally equal to) static lower bound')
+    gui.add('Edit', 'EditBound', 'Upper bound')
+    gui.add('CheckBox', 'CheckBoxEqual', 'Include equal')
+    gui.set('EditBound', 'number', self.parameter.bound)
+    gui.set('CheckBoxEqual', 'Checked', self.parameter.equal)
+    gui.setSize()
+  end,
+
+  apply = function(self)
+    self.parameter.bound = gui.get('EditBound', 'number')
+    self.parameter.equal = gui.get('CheckBoxEqual', 'Checked')
+  end,
+
+  close = function()
+  end,
+
+  avatar = function(self)
+    return block.getDefaultAvatar(0x50, "", [[
+      draw.setColorA(0.7, 0.7, 0.7)
+      draw.box(px(20), py(50), px(60), py(20))
+      draw.setColorA(0, 0, 0)
+      draw.line(px(10), py(80), px(80), py(80))
+      draw.line(px(20), py(20), px(20), py(90))
+      draw.line(px(20), py(50), px(80), py(50))
+      local p = {}
+      for i = 0, 60, 0.1 do
+        p[#p + 1] = px(20 + i)
+        p[#p + 1] = py(40 + math.cos(i / 15 * math.pi) * 10)
+      end
+      draw.line(table.unpack(p))
+    ]])
+  end,
+
+  generate = function(self)
+    local source =
+      [==[
+        return {
+
+          step = function(a)
+            if a CONDITION then
+              finish(block, "Check CONDITION detected")
+            end
+          end
+
+        }
+      ]==]
+    local replaces = {
+      ['CONDITION'] = self.parameter.equal and ('<= ' .. self.parameter.bound) or ('< ' .. self.parameter.bound)
+    }
+    return string.gsub(source, '%a+', replaces)
+  end,
+
+}
+
