@@ -1,5 +1,5 @@
 # PPV2 Model Verification
-This library is part of the [P+ simulation software](https://github.com/Mynogs/PPV2-Simulation-System).
+This library is part of the [p+ simulation software](https://github.com/Mynogs/PPV2-Simulation-System).
 
 Blocks to verify your model.
 
